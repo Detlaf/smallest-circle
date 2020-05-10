@@ -17,7 +17,7 @@ def draw_circle_points(center, radius, xr, yr):
     plt.scatter(xr, yr)
     circle = plt.Circle(center, radius, fill=False)
     ax.add_artist(circle)
-    plt.show()
+    plt.savefig('img/circle_{}_{}_{}.png'.format(int(center[0]), int(center[1]), int(radius)))
 
 def calculate_distance(p1, p2):
     x12 = (p1[0] - p2[0])**2
@@ -67,16 +67,14 @@ def find_smallest_circle(points):
         circle = ritter(points, point)
         if check_points_covered(points, circle):
             return circle
-    return None
 
 if __name__ == '__main__':
-    xs, ys = generate_points(60)
-    points = list(zip(xs, ys))
 
-    circle = find_smallest_circle(points)
-    if circle is not None:
-        center = circle['center']
-        radius = circle['radius']
-        draw_circle_points(center, radius, xs, ys)
-    else:
-        print("No circle found!")
+    for i in range(10):
+        xs, ys = generate_points(60)
+        points = list(zip(xs, ys))
+        circle = find_smallest_circle(points)
+        if circle is not None:
+            center = circle['center']
+            radius = circle['radius']
+            draw_circle_points(center, radius, xs, ys)
