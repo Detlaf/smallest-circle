@@ -1,19 +1,22 @@
-'''
-    Ritter's bounding sphere:
-        1. Pick a point x from P
-        2. Search for a point y in P, which has the maximum distance from x
-        3. Search for a point z in P, which has the maximum distance from y
-        4. Set up an initial ball B, with its centre at the midpoint of y and z, 
-            the radius as half of the distance between y and z
-        5. If all points in P are within the ball B, then we get the bounding sphere
-        5a. Otherwise, let p be the point outside the ball, which is at distance d from the border of B.
-            Move the centre of B towards p by d/2 and increase radius by d/2 to get a new ball.
-'''
 import matplotlib.pyplot as plt
 from classes import Point, Circle
 from points import all_points
 
 def ritter_initial_ball(points: list) -> Circle:
+    """
+        Implements steps 1-4 of the Ritter's bounding sphere algorithm
+
+        Parameters
+        ----------
+        points : list of <Point>
+            array of points for which to calculate the smallest circle
+
+        Returns
+        ----------
+        Circle
+            initial ball with its centre at the midpoint of p2 and p3,
+            the radius as half of the distance between p2 and p3    
+    """
     p1 = points[0]
     p2 = p1.find_farthest_from(points)
     p3 = p2.find_farthest_from(points)
@@ -28,21 +31,52 @@ def ritter_initial_ball(points: list) -> Circle:
     return c
 
 def find_smallest_circle(points: list) -> Circle:
+    """
+        Implements steps 5-6 of the Ritter's bounding sphere algorithm
+
+        Parameters
+        ----------
+        points : list of <Point>
+            array of points for which to calculate the smallest circle
+        
+        Returns
+        ----------
+        Circle
+            the smallest bounding circle for the given array of points
+    """
     bounding_circle = ritter_initial_ball(points)
     for point in points:
         d = point.calculate_distance_to(bounding_circle.centre)
-        if  d > bounding_circle.radius:
-            bounding_circle.radius += d / 16
-            bounding_circle.centre += point / 16
+        alpha = 8
+        while  d > bounding_circle.radius:
+            bounding_circle.radius += d / alpha
+            bounding_circle.centre += point / alpha
+            alpha *= 2
     return bounding_circle
 
 def draw_circle_points(c: Circle, points: list):
+    """
+        Draws given points, the calculated bounding circle and its centre
+
+        Parameters
+        ----------
+        c : Circle
+            calculated bounding circle defined by center and radius
+        points : list of <Point>
+            array of points for which to calculate the smallest circle
+
+        Returns
+        ----------
+        nothing
+    """
     fig, ax = plt.subplots()
     ax.set_xlim(left=c.centre.x - 2*c.radius, right=c.centre.x + 2*c.radius)
     ax.set_ylim(bottom=c.centre.y - 2*c.radius, top=c.centre.y + 2*c.radius)
+
     plt.scatter(c.centre.x, c.centre.y, c='r')
     for point in points:
         plt.scatter(point.x, point.y, c='b')
+
     circle = plt.Circle((c.centre.x, c.centre.y), c.radius, fill=False)
     ax.add_artist(circle)
     plt.show()
