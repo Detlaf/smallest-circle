@@ -14,22 +14,50 @@ import math
 import numpy as np
 import matplotlib.pyplot as plt
 
+class Point():
+    def __init__(self, coordinates):
+        self.x = coordinates[0]
+        self.y = coordinates[1]
+
+    def __repr__(self):
+        return ("({:.2f}, {:.2f})".format(self.x, self.y))
+
+    def __add__(self, other):
+        new_x = self.x + other.x
+        new_y = self.y + other.y
+
+        return Point((new_x, new_y))
+
+    def calculate_distance_to(self, p):
+        x12 = (self.x - p.x)**2
+        y12 = (self.y - p.y)**2
+        euclidean_distance = math.sqrt(x12 + y12)
+
+        return euclidean_distance
+
+    def find_farthest_from(self, points):
+        p = max(points, key=lambda p: self.calculate_distance_to(p))
+
+        return p
+
 class Circle():
-    def __init__(self, centre, radius):
-        self.centre= centre
+    def __init__(self, centre: Point, radius: float):
+        self.centre = centre
         self.radius = radius
 
-    def ritter(points, start):
-        p1 = start
-        p2 = find_farthest_from(p1, points)
-        p3 = find_farthest_from(p2, points)
+def ritter_initial_ball(points: list) -> Circle:
+    p1 = points[0]
+    p2 = p1.find_farthest_from(points)
+    p3 = p2.find_farthest_from(points)
 
-        diameter = calculate_distance(p2, p3)
-        x_c = (p2[0] + p3[0]) / 2
-        y_c = (p2[1] + p3[1]) / 2
+    diameter = p2.calculate_distance_to(p3)
+    x_c = (p2.x + p3.x) / 2
+    y_c = (p2.y + p3.y) / 2
+    centre = Point((x_c, y_c))
 
-        self.radius = diameter / 2
-        self.centre = (x_c, y_c)
+    c = Circle(centre, diameter / 2)
+
+    return c
 
 def generate_points(low=-5, high=5):
     num_points = np.random.randint(25, 60)
@@ -38,58 +66,30 @@ def generate_points(low=-5, high=5):
 
     return x_rand, y_rand
 
-def draw_circle_points(center, radius, xr, yr):
+def draw_circle_points(c: Circle, xr, yr):
     fig, ax = plt.subplots()
-    ax.set_xlim(left=center[0] - 2*radius, right=center[0] + 2*radius)
-    ax.set_ylim(bottom=center[1] - 2*radius, top=center[1] + 2*radius)
-    plt.scatter(center[0], center[1])
+    ax.set_xlim(left=c.centre.x - 2*c.radius, right=c.centre.x + 2*c.radius)
+    ax.set_ylim(bottom=c.centre.y - 2*c.radius, top=c.centre.y + 2*c.radius)
+    plt.scatter(c.centre.x, c.centre.y)
     plt.scatter(xr, yr)
-    circle = plt.Circle(center, radius, fill=False)
+    circle = plt.Circle((c.centre.x, c.centre.y), c.radius, fill=False)
     ax.add_artist(circle)
-    plt.savefig('img/circle_{}_{}_{}.png'.format(int(center[0]), int(center[1]), int(radius)))
+    plt.show()
 
-def calculate_distance(p1, p2):
-    x12 = (p1[0] - p2[0])**2
-    y12 = (p1[1] - p2[1])**2
-    euclidean_distance = math.sqrt(x12 + y12)
-
-    return euclidean_distance
-
-def find_farthest_from(start, points):
-    max_dist = 0
+def find_smallest_circle(points: list) -> Circle:
+    bounding_circle = ritter_initial_ball(points)
     for point in points:
-        dist = calculate_distance(point, start)
-        if dist > max_dist:
-            farthest = point
-            max_dist = dist
-    return farthest
-
-def check_points_covered(points, circle):
-    r = circle['radius']
-    center = circle['center'][0], circle['center'][1]
-
-    for point in points:
-        dist_center = calculate_distance(center, point)
-        if dist_center > r:
-            return dist_center
-    return None
-
-def find_smallest_circle(points):
-    for point in points:
-        circle = ritter(points, point)
-        while check_points_covered(points, circle) is not None:
-            outlier_distance = check_points_covered(points, circle)
-            circle['radius'] += outlier_distance / 2
-            circle['center'][0] += outlier_distance / 2
-            circle['center'][1] += outlier_distance / 2
-        return circle
+        d = point.calculate_distance_to(bounding_circle.centre)
+        if  d > bounding_circle.radius:
+            bounding_circle.radius += d / 2
+            bounding_circle.centre += point
+    return bounding_circle
 
 if __name__ == '__main__':
 
-    for i in range(10):
-        xs, ys = generate_points(60)
-        points = list(zip(xs, ys))
-        circle = find_smallest_circle(points)
-        center = circle['center']
-        radius = circle['radius']
-        draw_circle_points(center, radius, xs, ys)
+    xs, ys = generate_points()
+    points = [Point(p) for p in list(zip(xs, ys))]
+    c = find_smallest_circle(points)
+    draw_circle_points(c, xs, ys)
+        
+        
