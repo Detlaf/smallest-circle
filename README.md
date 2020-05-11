@@ -15,4 +15,4 @@ Here I modified the algorithm a little bit: initially, the radius was supposed t
 ## How to launch
  - If you want to run this in a virtual enviroment, run `create_venv.sh`;
  - Run `python start.py` to see the result;
-###### Note: if nothing is displayed after running the command, delete the created virtual environemtn, uncomment lines in the `create_venv.sh` and run it again.
+###### Note: if nothing is displayed after running the command, delete the created virtual environment, uncomment lines in the `create_venv.sh` and run it again.
