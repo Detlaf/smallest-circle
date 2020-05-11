@@ -1,6 +1,31 @@
 import math
 
 class Point():
+    """
+        A class used to represent point on 2D plane
+
+        Attributes
+        ----------
+        x : float
+            x-coordinate of the point
+        y : float
+            y-coordinate of the point
+
+        Methods
+        -------
+        calculate_distance_to(p) -> float
+            calculated euclidean distance from the given point to the point p
+        find_farthest_from(points) -> Point 
+            in the list of points finds a point which has the maximum distance from the current
+
+        Overloaded operators
+        --------
+
+        __add__ (+) -> Point
+            overloaded so that two points' coordinates could be added together
+        __truediv__ (/) -> Point
+            overloaded so that point's coordinates could be divided by some number
+    """
     def __init__(self, coordinates):
         self.x = coordinates[0]
         self.y = coordinates[1]
@@ -33,6 +58,16 @@ class Point():
         return p
 
 class Circle():
+    """
+        A class used to represent circle on 2D plane
+
+        Attributes
+        ----------
+        centre : Point
+            (x, y) coordinates of the circle's centre
+        radius : float
+            circle's radius
+    """
     def __init__(self, centre: Point, radius: float):
         self.centre = centre
         self.radius = radius
